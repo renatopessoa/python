@@ -1,0 +1,465 @@
+# 🐍 Desafio Python — CRUD de Gerenciamento de Contatos
+
+## Objetivo
+
+Construir um **sistema de gerenciamento de contatos** via terminal (CLI).
+Você vai praticar: variáveis, listas, dicionários, funções, loops, tratamento
+de erros, leitura/escrita de arquivos e organização de código.
+
+---
+
+## Regras do Desafio
+
+1. **Não copie e cole** — digite cada linha para memorizar a sintaxe.
+2. Complete **uma etapa por vez**. Só avance quando a anterior funcionar.
+3. Teste manualmente cada funcionalidade antes de seguir.
+4. Ao final de cada etapa há um ✅ checklist — marque antes de prosseguir.
+
+---
+
+## Estrutura Final do Projeto
+
+```
+python/
+├── desafio.prd          ← este arquivo (especificação)
+├── main.py              ← ponto de entrada do programa
+├── contatos.py          ← funções CRUD
+├── utils.py             ← funções auxiliares (validação, formatação)
+└── dados/
+    └── contatos.json    ← arquivo de persistência
+```
+
+---
+
+<!-- ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+
+## 🟢 ETAPA 1 — Hello CRUD (Estrutura e Menu)
+
+> ⭐ Dificuldade: **Fácil** · ⏱️ Tempo estimado: **30 min** · 📁 Arquivo: `main.py`
+
+### O que você vai aprender
+- Criar o ponto de entrada (`main.py`)
+- Usar `input()` e `print()`
+- Estruturas condicionais (`if/elif/else`)
+- Loop principal (`while True`)
+
+### Tarefa
+
+Crie o arquivo `main.py` com um menu interativo que exibe as opções:
+
+```
+========================================
+   📒 GERENCIADOR DE CONTATOS
+========================================
+[1] Adicionar contato
+[2] Listar contatos
+[3] Buscar contato
+[4] Atualizar contato
+[5] Remover contato
+[0] Sair
+========================================
+Escolha uma opção:
+```
+
+- O menu deve ficar em loop até o usuário digitar `0`.
+- Se o usuário digitar uma opção inválida, exiba: `"⚠️  Opção inválida. Tente novamente."`
+- Por enquanto, cada opção (1–5) pode apenas exibir: `"🚧 Funcionalidade em construção..."`
+
+### Dicas
+- Use `while True` + `break` para o loop principal.
+- Use `input("Escolha uma opção: ").strip()` para capturar a entrada.
+- Crie uma função `exibir_menu()` que imprime o menu.
+
+### ✅ Checklist
+- [ ] O menu aparece ao rodar `python main.py`
+- [ ] O programa fica em loop até digitar `0`
+- [ ] Opções inválidas mostram mensagem de erro
+- [ ] Cada opção válida mostra "em construção"
+
+---
+
+<!-- ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+
+## 🔵 ETAPA 2 — Criar e Listar (Create + Read)
+
+> ⭐⭐ Dificuldade: **Médio** · ⏱️ Tempo estimado: **45 min** · 📁 Arquivos: `contatos.py` + `main.py`
+
+### O que você vai aprender
+- Listas e dicionários
+- Criar funções com parâmetros e retorno
+- Separar responsabilidades em módulos
+
+### Tarefa
+
+Crie o arquivo `contatos.py` com:
+
+1. Uma **lista global** para armazenar os contatos (cada contato é um dicionário):
+
+```python
+# Estrutura de um contato:
+{
+    "id": 1,
+    "nome": "Maria Silva",
+    "telefone": "(11) 99999-0000",
+    "email": "maria@email.com"
+}
+```
+
+2. **Função `adicionar_contato(lista, nome, telefone, email)`**
+   - Gera o `id` automaticamente (baseado no comprimento da lista + 1, ou no maior id existente + 1).
+   - Cria o dicionário do contato e adiciona à lista.
+   - Retorna o contato criado.
+
+3. **Função `listar_contatos(lista)`**
+   - Se a lista estiver vazia, exibe: `"📭 Nenhum contato cadastrado."`
+   - Caso contrário, exibe cada contato formatado:
+
+```
+ID: 1 | Nome: Maria Silva | Tel: (11) 99999-0000 | Email: maria@email.com
+ID: 2 | Nome: João Santos | Tel: (21) 88888-1111 | Email: joao@email.com
+```
+
+4. No `main.py`, importe as funções e conecte às opções 1 e 2 do menu:
+   - Opção 1: pede nome, telefone e email via `input()`, chama `adicionar_contato`.
+   - Opção 2: chama `listar_contatos`.
+
+### Dicas
+- Use `from contatos import adicionar_contato, listar_contatos`
+- Para gerar ID único: `novo_id = max([c["id"] for c in lista], default=0) + 1`
+- Use f-strings para formatação: `f"ID: {c['id']} | Nome: {c['nome']}"`
+
+### ✅ Checklist
+- [ ] Consigo adicionar um contato e ver confirmação
+- [ ] Consigo listar todos os contatos cadastrados
+- [ ] A lista vazia mostra mensagem apropriada
+- [ ] Os IDs são gerados automaticamente
+
+---
+
+<!-- ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+
+## 🟡 ETAPA 3 — Buscar (Read com filtro)
+
+> ⭐⭐ Dificuldade: **Médio** · ⏱️ Tempo estimado: **30 min** · 📁 Arquivos: `contatos.py` + `main.py`
+
+### O que você vai aprender
+- Busca em listas de dicionários
+- Comparação de strings (case-insensitive)
+- Retornar múltiplos resultados
+
+### Tarefa
+
+No `contatos.py`, crie:
+
+1. **Função `buscar_contato(lista, termo)`**
+   - Busca por **nome** OU **telefone** OU **email** que contenha o `termo`.
+   - A busca deve ser **case-insensitive** (não diferenciar maiúsculas/minúsculas).
+   - Retorna uma **lista** com todos os contatos que correspondem.
+
+2. No `main.py`, conecte à opção 3:
+   - Pede o termo de busca via `input()`.
+   - Se encontrar, exibe os resultados formatados.
+   - Se não encontrar: `"🔍 Nenhum contato encontrado para 'termo'."`
+
+### Dicas
+- Use `.lower()` para comparação case-insensitive.
+- Use `in` para verificar substring: `termo.lower() in contato["nome"].lower()`
+- Use list comprehension para filtrar:
+  ```python
+  resultados = [c for c in lista if termo.lower() in c["nome"].lower()
+                or termo.lower() in c["telefone"]
+                or termo.lower() in c["email"].lower()]
+  ```
+
+### ✅ Checklist
+- [ ] Busca por nome funciona (parcial e case-insensitive)
+- [ ] Busca por telefone funciona
+- [ ] Busca por email funciona
+- [ ] Busca sem resultados mostra mensagem apropriada
+
+---
+
+<!-- ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+
+## 🟠 ETAPA 4 — Atualizar (Update)
+
+> ⭐⭐ Dificuldade: **Médio** · ⏱️ Tempo estimado: **45 min** · 📁 Arquivos: `contatos.py` + `main.py`
+
+### O que você vai aprender
+- Buscar item por ID
+- Atualizar valores em dicionário
+- Permitir campos opcionais (Enter para manter o valor atual)
+
+### Tarefa
+
+No `contatos.py`, crie:
+
+1. **Função `buscar_por_id(lista, id_contato)`**
+   - Recebe o ID como inteiro.
+   - Retorna o dicionário do contato ou `None` se não encontrar.
+
+2. **Função `atualizar_contato(contato, nome=None, telefone=None, email=None)`**
+   - Atualiza **apenas** os campos que receberam valor (não são `None` e não estão vazios).
+   - Retorna o contato atualizado.
+
+3. No `main.py`, conecte à opção 4:
+   - Pede o ID do contato.
+   - Se encontrar, exibe os dados atuais e pede os novos valores.
+   - Instrua o usuário: `"(pressione Enter para manter o valor atual)"`
+   - Se o campo ficar vazio, mantém o valor anterior.
+
+### Exemplo de interação:
+
+```
+Digite o ID do contato: 1
+
+Dados atuais:
+  Nome: Maria Silva
+  Telefone: (11) 99999-0000
+  Email: maria@email.com
+
+Novos dados (Enter para manter):
+  Nome [Maria Silva]: Maria Souza
+  Telefone [(11) 99999-0000]:
+  Email [maria@email.com]: maria.souza@email.com
+
+✅ Contato atualizado com sucesso!
+```
+
+### Dicas
+- No `input`, mostre o valor atual: `input(f"  Nome [{contato['nome']}]: ").strip()`
+- Use `or` para manter o valor: `novo_nome = novo_nome or contato["nome"]`
+- Converta o ID para inteiro: `int(input("ID: "))`
+
+### ✅ Checklist
+- [ ] Consigo atualizar um contato pelo ID
+- [ ] Campos em branco mantêm o valor anterior
+- [ ] ID inexistente mostra mensagem de erro
+- [ ] Após atualizar, `listar_contatos` mostra os dados novos
+
+---
+
+<!-- ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+
+## 🔴 ETAPA 5 — Remover (Delete)
+
+> ⭐⭐ Dificuldade: **Médio** · ⏱️ Tempo estimado: **30 min** · 📁 Arquivos: `contatos.py` + `main.py`
+
+### O que você vai aprender
+- Remover item de lista
+- Pedir confirmação antes de ação destrutiva
+- Tratamento de erros com `try/except`
+
+### Tarefa
+
+No `contatos.py`, crie:
+
+1. **Função `remover_contato(lista, id_contato)`**
+   - Busca o contato pelo ID.
+   - Remove da lista.
+   - Retorna `True` se removeu, `False` se não encontrou.
+
+2. No `main.py`, conecte à opção 5:
+   - Pede o ID do contato.
+   - Exibe os dados do contato encontrado.
+   - Pede confirmação: `"Tem certeza que deseja remover? (s/n): "`
+   - Se confirmar, remove e exibe: `"🗑️  Contato removido com sucesso!"`
+   - Se cancelar: `"❌ Operação cancelada."`
+
+3. **Trate erros** em todo o `main.py`:
+   - Se o usuário digitar texto onde espera número: `"⚠️  Por favor, digite um número válido."`
+   - Use `try/except ValueError`.
+
+### Dicas
+- Para remover de lista: `lista.remove(contato)` ou use list comprehension.
+- Confirmação: `input("Tem certeza? (s/n): ").strip().lower() == "s"`
+- Envolva conversões de ID em `try/except`:
+  ```python
+  try:
+      id_contato = int(input("ID: "))
+  except ValueError:
+      print("⚠️  Por favor, digite um número válido.")
+  ```
+
+### ✅ Checklist
+- [ ] Consigo remover um contato pelo ID
+- [ ] O programa pede confirmação antes de remover
+- [ ] Cancelar a remoção não apaga o contato
+- [ ] Digitar texto em campo numérico não quebra o programa
+- [ ] ID inexistente mostra mensagem de erro
+
+---
+
+<!-- ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+
+## 🟣 ETAPA 6 — Validação e Utilidades
+
+> ⭐⭐⭐ Dificuldade: **Avançado** · ⏱️ Tempo estimado: **45 min** · 📁 Arquivos: `utils.py` + `main.py`
+
+### O que você vai aprender
+- Validação de dados com expressões regulares (regex)
+- Separar funções utilitárias em módulo próprio
+- Melhorar a experiência do usuário
+
+### Tarefa
+
+Crie o arquivo `utils.py` com:
+
+1. **Função `validar_email(email)`**
+   - Verifica se o email tem formato válido (contém `@` e `.` após o `@`).
+   - Retorna `True` ou `False`.
+   - Dica: use regex simples ou verificação manual.
+
+2. **Função `validar_telefone(telefone)`**
+   - Verifica se o telefone tem pelo menos 10 dígitos numéricos.
+   - Retorna `True` ou `False`.
+
+3. **Função `formatar_telefone(telefone)`**
+   - Recebe qualquer formato e retorna no padrão `(XX) XXXXX-XXXX`.
+   - Extrai apenas os dígitos e formata.
+
+4. **Função `limpar_tela()`**
+   - Limpa o terminal (`os.system("cls")` no Windows ou `os.system("clear")` no Linux/Mac).
+
+5. Integre as validações no fluxo de `adicionar_contato` no `main.py`:
+   - Se email inválido: pede novamente.
+   - Se telefone inválido: pede novamente.
+
+### Dicas
+- Import regex: `import re`
+- Padrão simples de email: `re.match(r"[^@]+@[^@]+\.[^@]+", email)`
+- Extrair dígitos: `re.sub(r"\D", "", telefone)` ou `"".join(c for c in telefone if c.isdigit())`
+- Detectar SO: `import os; os.name == "nt"` (Windows) ou `"posix"` (Linux/Mac)
+
+### ✅ Checklist
+- [ ] Email inválido é rejeitado e pede novamente
+- [ ] Telefone inválido é rejeitado e pede novamente
+- [ ] Telefone é formatado automaticamente
+- [ ] `limpar_tela()` funciona no seu sistema operacional
+
+---
+
+<!-- ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+
+## ⚫ ETAPA 7 — Persistência em JSON (Salvar e Carregar)
+
+> ⭐⭐⭐ Dificuldade: **Avançado** · ⏱️ Tempo estimado: **45 min** · 📁 Arquivos: `contatos.py` + `main.py`
+
+### O que você vai aprender
+- Leitura e escrita de arquivos
+- Serialização JSON
+- Criar diretórios automaticamente
+- Carregar dados ao iniciar o programa
+
+### Tarefa
+
+No `contatos.py`, adicione:
+
+1. **Função `salvar_contatos(lista, caminho="dados/contatos.json")`**
+   - Cria a pasta `dados/` se não existir: `os.makedirs("dados", exist_ok=True)`
+   - Salva a lista em formato JSON com indentação.
+   - Use `encoding="utf-8"` e `ensure_ascii=False` para suportar acentos.
+
+2. **Função `carregar_contatos(caminho="dados/contatos.json")`**
+   - Se o arquivo existir, carrega e retorna a lista.
+   - Se não existir, retorna lista vazia.
+   - Trate erros de JSON corrompido com `try/except`.
+
+3. No `main.py`:
+   - Ao iniciar: carregue os contatos do arquivo.
+   - Após cada operação de escrita (adicionar, atualizar, remover): salve automaticamente.
+
+### Dicas
+- Salvar JSON:
+  ```python
+  import json
+  import os
+
+  def salvar_contatos(lista, caminho="dados/contatos.json"):
+      os.makedirs(os.path.dirname(caminho), exist_ok=True)
+      with open(caminho, "w", encoding="utf-8") as f:
+          json.dump(lista, f, indent=2, ensure_ascii=False)
+  ```
+- Carregar JSON:
+  ```python
+  def carregar_contatos(caminho="dados/contatos.json"):
+      if not os.path.exists(caminho):
+          return []
+      try:
+          with open(caminho, "r", encoding="utf-8") as f:
+              return json.load(f)
+      except (json.JSONDecodeError, IOError):
+          print("⚠️  Erro ao ler arquivo. Iniciando com lista vazia.")
+          return []
+  ```
+
+### ✅ Checklist
+- [ ] Contatos são salvos automaticamente no arquivo JSON
+- [ ] Ao reiniciar o programa, os contatos são carregados
+- [ ] A pasta `dados/` é criada automaticamente
+- [ ] Arquivo corrompido não quebra o programa
+
+---
+
+## 🏆 DESAFIOS BÔNUS (Opcional)
+
+Se você completou todas as etapas, tente estes desafios extras:
+
+### Bônus 1 — Ordenação
+- Adicione uma opção `[6] Ordenar contatos` com sub-opções:
+  - Por nome (A-Z)
+  - Por nome (Z-A)
+  - Por ID
+
+### Bônus 2 — Exportar para CSV
+- Crie uma função que exporta os contatos para `dados/contatos.csv`.
+- Use o módulo `csv` do Python.
+
+### Bônus 3 — Estatísticas
+- Adicione uma opção `[7] Estatísticas` que mostra:
+  - Total de contatos cadastrados
+  - Contato adicionado mais recentemente
+  - DDDs mais frequentes
+
+### Bônus 4 — Backup Automático
+- Antes de cada salvamento, crie um backup do arquivo anterior com timestamp:
+  `dados/backups/contatos_2026-10-05_00-58.json`
+
+### Bônus 5 — Interface com Cores
+- Use códigos ANSI para colorir o terminal:
+  ```python
+  VERDE = "\033[92m"
+  VERMELHO = "\033[91m"
+  AMARELO = "\033[93m"
+  RESET = "\033[0m"
+  print(f"{VERDE}✅ Sucesso!{RESET}")
+  ```
+
+---
+
+## 📚 Conceitos Python Praticados
+
+| Conceito                  | Etapa |
+|---------------------------|-------|
+| `print()`, `input()`     | 1     |
+| `if/elif/else`           | 1     |
+| `while True`, `break`    | 1     |
+| Listas e Dicionários     | 2     |
+| Funções e Parâmetros      | 2     |
+| Importação de Módulos     | 2     |
+| Busca e Filtragem         | 3     |
+| f-strings                 | 3     |
+| List Comprehension        | 3     |
+| Parâmetros Opcionais      | 4     |
+| `try/except`             | 5     |
+| Regex (`re`)             | 6     |
+| `os.system()`            | 6     |
+| Leitura/Escrita de Arquivo| 7     |
+| JSON (`json`)            | 7     |
+| `os.makedirs()`          | 7     |
+
+---
+
+> **Boa sorte e bom código!** 🚀
+> Lembre-se: o objetivo é PRATICAR, não apenas fazer funcionar.
+> Escreva cada linha, entenda cada decisão, e teste cada cenário.
